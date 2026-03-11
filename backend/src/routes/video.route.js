@@ -23,7 +23,7 @@ router.route("/upload-video").post(
 );
 
 router
-  .route("/video/:videoId")
+  .route("/:videoId")
     .get(verifyJWT, getVideoById)
     .patch(verifyJWT, upload.single("thumbnail"), updateVideo)
     .delete(verifyJWT, deleteVideo);

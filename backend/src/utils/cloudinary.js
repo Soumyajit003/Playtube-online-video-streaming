@@ -22,14 +22,12 @@ const uploadOnCloudinary = async (localPath) => {
     }
     return response;
   } catch (error) {
-    // fs.unlinkSync(localPath); //it will remove the file from the locally stored temporary file if file upload got failled
+    console.error("CLOUDINARY UPLOAD ERROR DETAILS:", error);
     if (localPath && fs.existsSync(localPath)) {
       fs.unlinkSync(localPath);
     }
-
-    throw new ApiError(400,"Cloudinary Upload Error!!!"); 
-    
-}
+    throw new ApiError(400, `Cloudinary Upload Error: ${error.message}`); 
+  }
 };
 
 const deleteFromCloudinary = async (PublicId) => {

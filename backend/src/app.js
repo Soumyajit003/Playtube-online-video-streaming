@@ -5,9 +5,12 @@ import cookieParser from "cookie-parser";
 const app = express();
 
 // Middlewares
+console.log("CORS_ORIGIN:", process.env.CORS_ORIGIN);
+const origins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : "*";
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: origins,
     credentials: true,
   })
 );
@@ -38,5 +41,16 @@ app.use("/api/v1/tweets", tweetRouter);
 app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/playlists", playlistRouter);
 
+// Common error handler
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Something went wrong";
+    
+    return res.status(statusCode).json({
+        success: false,
+        message,
+        errors: err.errors || [],
+    });
+});
 
 export { app };

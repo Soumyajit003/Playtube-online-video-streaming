@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "699364cf0cc1400fd958dbc6",
+    "username": "testtfour",
+    "email": "fourtest@gmail.com",
+    "fullname": "Four Test"
+  },
+  {
+    "_id": "6995e15351ca8d06414cd014",
+    "username": "testone",
+    "email": "one@gmail.com",
+    "fullname": "Test One"
+  },
+  {
+    "_id": "69b1e655ef0602ab2fa21222",
+    "username": "user1",
+    "email": "testuser1@example.com",
+    "fullname": "Test"
+  },
+  {
+    "_id": "69b1eadcb1528aefcfe61c41",
+    "username": "debuguser99",
+    "email": "debuguser99@example.com",
+    "fullname": "Debug User"
+  }
+]

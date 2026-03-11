@@ -36,9 +36,13 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 // Registering new user
 const registerUser = asyncHandler(async (req, res) => {
+  console.log("--- REGISTER USER CONTROLLER ENTRY ---");
   // Get user details from frontend
 
   const { fullname, email, username, password } = req.body;
+  console.log("Registration Request Body:", req.body);
+  console.log("Incoming Email:", email);
+  console.log("Incoming Username:", username);
 
   // validation for empty fields
   if (
@@ -51,6 +55,8 @@ const registerUser = asyncHandler(async (req, res) => {
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
+  console.log("Existing user found in DB:", existedUser);
+
   if (existedUser) {
     throw new ApiError(409, "username and email already exists!!!");
   }
@@ -71,14 +77,20 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar is required!!!");
   }
 
+  console.log("Uploading avatar to Cloudinary...");
   const avatarUploaded = await uploadOnCloudinary(avatarLocalPath);
+  console.log("Avatar uploaded successfully:", avatarUploaded?.url);
+
+  console.log("Uploading cover image to Cloudinary (if exists)...");
   const coverImageUploaded = await uploadOnCloudinary(coverImageLocalPath);
+  console.log("Cover image upload result:", coverImageUploaded?.url || "No cover image uploaded");
 
   if (!avatarUploaded) {
-    throw new ApiError(400, "Avatar is required!!!");
+    throw new ApiError(400, "Avatar failed to upload!!!");
   }
 
   // creating user object for db
+  console.log("Creating user in MongoDB...");
   const user = await User.create({
     username: username.toLowerCase(),
     email,

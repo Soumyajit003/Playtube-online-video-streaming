@@ -14,9 +14,6 @@ const getChannelStats = asyncHandler(async (req, res) => {
       $match: {
         channel: new mongoose.Types.ObjectId(userId),
       },
-      {
-        
-      }
     },
     {
       $group: {

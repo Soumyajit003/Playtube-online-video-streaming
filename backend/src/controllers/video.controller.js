@@ -175,7 +175,10 @@ const getVideoById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User id is invalid!!!");
   }
 
-  const video = Video.aggregate([
+  console.log("Fetching video by ID:", videoId);
+  console.log("Current User ID:", req.user?._id);
+
+  const video = await Video.aggregate([
     {
       $match: {
         _id: new mongoose.Types.ObjectId(videoId),
@@ -196,8 +199,8 @@ const getVideoById = asyncHandler(async (req, res) => {
         },
         isLiked: {
           $cond: {
-            $if: {
-              $in: [req.user?._id, "$likes.likedBy"],
+            if: {
+              $in: [new mongoose.Types.ObjectId(req.user?._id), "$likes.likedBy"],
             },
             then: true,
             else: false,
@@ -228,7 +231,7 @@ const getVideoById = asyncHandler(async (req, res) => {
               isSubscribed: {
                 $cond: {
                   if: {
-                    $in: [req.user?._id, "$subscribers.subscriber"],
+                    $in: [new mongoose.Types.ObjectId(req.user?._id), "$subscribers.subscriber"],
                   },
                   then: true,
                   else: false,
@@ -249,11 +252,10 @@ const getVideoById = asyncHandler(async (req, res) => {
     },
     {
       $project: {
-        videoFile: 1,
+        videoFile: "$videofile",
         title: 1,
         description: 1,
         views: 1,
-        comments: 1,
         duration: 1,
         createdAt: 1,
         owner: 1,
@@ -263,8 +265,10 @@ const getVideoById = asyncHandler(async (req, res) => {
     },
   ]);
 
-  if (!video) {
-    throw ApiError(500, "Failed to fetch video :(");
+  console.log("Aggregation results:", JSON.stringify(video, null, 2));
+
+  if (!video?.length) {
+    throw new ApiError(404, "Video not found :(");
   }
 
   // increase the views if the video is fetched successfully

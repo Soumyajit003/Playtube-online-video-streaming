@@ -1,0 +1,88 @@
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import MainLayout from '../components/layout/MainLayout';
+import useAuthStore from './store';
+
+import Home from '../features/video/pages/VideoFeed';
+import Login from '../features/auth/pages/Login';
+import Signup from '../features/auth/pages/Signup';
+import VideoPlayer from '../features/video/pages/VideoPlayer';
+import Dashboard from '../features/video/pages/Dashboard';
+import Tweets from '../features/tweet/pages/Tweets';
+import Upload from '../features/video/pages/VideoUpload';
+import Channel from '../features/video/pages/ChannelPage';
+import Playlists from '../features/playlist/components/PlaylistList';
+const Subscriptions = () => <div className="p-10 text-center text-text-secondary">Subscriptions section coming soon...</div>;
+const LikedVideos = () => <div className="p-10 text-center text-text-secondary">Liked videos section coming soon...</div>;
+const History = () => <div className="p-10 text-center text-text-secondary">Watch history section coming soon...</div>;
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuthStore();
+  
+  if (isLoading) return null; // Or a loader
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  
+  return children;
+};
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <MainLayout />,
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+      {
+        path: 'watch/:videoId',
+        element: <VideoPlayer />,
+      },
+      {
+        path: 'channel/:username',
+        element: <Channel />,
+      },
+      {
+        path: 'subscriptions',
+        element: <ProtectedRoute><Subscriptions /></ProtectedRoute>,
+      },
+      {
+        path: 'liked-videos',
+        element: <ProtectedRoute><LikedVideos /></ProtectedRoute>,
+      },
+      {
+        path: 'history',
+        element: <ProtectedRoute><History /></ProtectedRoute>,
+      },
+      {
+        path: 'dashboard',
+        element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
+      },
+      {
+        path: 'upload',
+        element: <ProtectedRoute><Upload /></ProtectedRoute>,
+      },
+      {
+        path: 'tweets',
+        element: <Tweets />,
+      },
+      {
+        path: 'collections',
+        element: <Playlists />,
+      },
+      {
+        path: 'my-content',
+        element: <ProtectedRoute><div>My Content</div></ProtectedRoute>,
+      }
+    ],
+  },
+  {
+    path: '/login',
+    element: <Login />,
+  },
+  {
+    path: '/signup',
+    element: <Signup />,
+  },
+]);
+
+export default router;

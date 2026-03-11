@@ -5,9 +5,20 @@ import { app } from "./app.js";
 import connectDB from "./db/db.js";
 import dotenv from "dotenv";
 
-dotenv.config({ path: './env' });
+dotenv.config({
+    path: './.env'
+})
 
 const port = process.env.PORT || 3000;
+
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+    console.error("Uncaught Exception:", err);
+    process.exit(1);
+});
 
 connectDB()
     .then(() => {
