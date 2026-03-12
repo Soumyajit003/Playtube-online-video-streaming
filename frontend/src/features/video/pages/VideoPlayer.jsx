@@ -6,6 +6,7 @@ import { Button } from '../../../components/ui/Button';
 import { Loader } from '../../../components/ui/Loader';
 import { GlassCard } from '../../../components/ui/GlassCard';
 import useAuthStore from '../../../app/store';
+import { toggleVideoLike } from '../../likes/api/likeApi';
 
 const VideoPlayer = () => {
   const { videoId } = useParams();
@@ -34,12 +35,34 @@ const VideoPlayer = () => {
   }, [videoId]);
 
   const handleLike = async () => {
+    if (!currentUser) {
+      console.warn('User must be logged in to like');
+      // If there's a toast utility, it would be good to use it here.
+      // For now, we'll just log it.
+      return;
+    }
+    
+    // Store previous values for rollback
+    const previousIsLiked = isLiked;
+    const previousLikesCount = likesCount;
+    
+    // Optimistic UI update
+    setIsLiked(!previousIsLiked);
+    setLikesCount(prev => previousIsLiked ? prev - 1 : prev + 1);
+
     try {
-      await axiosInstance.post(`/likes/toggle/v/${videoId}`);
-      setIsLiked(!isLiked);
-      setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+      const response = await toggleVideoLike(videoId);
+      // If backend returns the actual new state, we could sync it here
+      // but the optimistic update already handled the toggle.
+      // Some backends might return the NEW isLiked state.
+      if (response?.data && typeof response.data.isLiked === 'boolean') {
+        setIsLiked(response.data.isLiked);
+      }
     } catch (error) {
       console.error('Error toggling like:', error);
+      // Rollback on error
+      setIsLiked(previousIsLiked);
+      setLikesCount(previousLikesCount);
     }
   };
 
@@ -81,13 +104,13 @@ const VideoPlayer = () => {
 
             <div className="flex items-center gap-2">
               <Button 
-                variant={isLiked ? 'primary' : 'secondary'} 
+                variant="secondary" 
                 size="sm" 
-                className="rounded-full gap-2 px-6"
+                className={`rounded-full gap-2 px-6 transition-colors duration-300 ${isLiked ? 'text-red-500' : 'text-gray-400'}`}
                 onClick={handleLike}
               >
-                <ThumbsUp size={18} fill={isLiked ? 'currentColor' : 'none'} />
-                {likesCount}
+                <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'scale-110' : ''} />
+                <span className="font-semibold">{likesCount} Likes</span>
               </Button>
               <Button variant="secondary" size="sm" className="rounded-full gap-2 px-4">
                 <Share2 size={18} />

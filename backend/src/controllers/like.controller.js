@@ -9,7 +9,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
 
   if (!isValidObjectId(videoId)) {
-    throw new ApiError("Invalid video id!!!");
+    throw new ApiError(400, "Invalid video id!!!");
   }
 
   const alreadyLiked = await Like.findOne({
@@ -159,24 +159,17 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     },
     {
       $project: {
-        _id: 0,
-        likedVideos: {
-          _id: 1,
-          videofile: 1,
-          thumbnail: 1,
-          title: 1,
-          description: 1,
-          owner: 1,
-          createdAt: 1,
-          isPublished: 1,
-          views: 1,
-          duration: 1,
-          ownerDetails: {
-            username: 1,
-            fullname: 1,
-            avatar: 1,
-          },
-        },
+        _id: "$likedVideo._id",
+        videoFile: "$likedVideo.videofile",
+        thumbnail: "$likedVideo.thumbnail",
+        title: "$likedVideo.title",
+        description: "$likedVideo.description",
+        owner: "$likedVideo.owner",
+        createdAt: "$likedVideo.createdAt",
+        isPublished: "$likedVideo.isPublished",
+        views: "$likedVideo.views",
+        duration: "$likedVideo.duration",
+        ownerDetails: "$likedVideo.ownerDetails",
       },
     },
   ]);

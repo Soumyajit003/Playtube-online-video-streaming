@@ -9,7 +9,8 @@ import {
   Users, 
   LogOut,
   Hash,
-  LayoutDashboard
+  LayoutDashboard,
+  Heart
 } from 'lucide-react';
 import useAuthStore from '../../app/store';
 
@@ -18,7 +19,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { icon: Home, label: 'Home', path: '/' },
-    { icon: ThumbsUp, label: 'Liked Videos', path: '/liked-videos' },
+    { icon: Heart, label: 'Liked Videos', path: '/liked-videos' },
     { icon: History, label: 'History', path: '/history' },
     { icon: PlaySquare, label: 'My Content', path: '/my-content' },
     { icon: Layers, label: 'Collections', path: '/collections' },
