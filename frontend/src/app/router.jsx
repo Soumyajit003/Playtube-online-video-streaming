@@ -13,7 +13,7 @@ import Channel from '../features/video/pages/ChannelPage';
 import Playlists from '../features/playlist/components/PlaylistList';
 const Subscriptions = () => <div className="p-10 text-center text-text-secondary">Subscriptions section coming soon...</div>;
 import LikedVideos from '../features/video/pages/LikedVideos';
-const History = () => <div className="p-10 text-center text-text-secondary">Watch history section coming soon...</div>;
+import History from '../features/video/pages/History';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuthStore();
