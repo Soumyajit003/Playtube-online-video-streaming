@@ -22,7 +22,7 @@ const Sidebar = () => {
     { icon: Heart, label: 'Liked Videos', path: '/liked-videos' },
     { icon: History, label: 'History', path: '/history' },
     { icon: PlaySquare, label: 'My Content', path: '/my-content' },
-    { icon: Layers, label: 'Collections', path: '/collections' },
+    { icon: Layers, label: 'Playlists', path: '/playlists' },
     { icon: Users, label: 'Subscriptions', path: '/subscriptions' },
     { icon: Hash, label: 'Tweets', path: '/tweets' },
   ];

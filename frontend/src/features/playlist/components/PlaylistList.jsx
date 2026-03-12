@@ -31,7 +31,7 @@ const Playlists = () => {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your Collections</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Your Playlists</h1>
           <p className="text-text-secondary mt-1">Organize your favorite videos</p>
         </div>
         <Button variant="primary" className="gap-2">

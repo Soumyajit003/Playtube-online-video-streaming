@@ -66,7 +66,7 @@ const router = createBrowserRouter([
         element: <Tweets />,
       },
       {
-        path: 'collections',
+        path: 'playlists',
         element: <Playlists />,
       },
       {
