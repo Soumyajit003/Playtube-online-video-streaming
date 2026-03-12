@@ -273,11 +273,7 @@ const getVideoById = asyncHandler(async (req, res) => {
   }
 
   // increase the views if the video is fetched successfully
-  await Video.findByIdAndUpdate(videoId, {
-    $inc: {
-      views: 1,
-    },
-  });
+  // MOVED to dedicated endpoint /v/:videoId/view
 
   // add the video to the watch history of the user
   await User.findByIdAndUpdate(req.user?._id, {
@@ -434,4 +430,31 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
 })
 
-export { uploadVideo, getAllVideos, getVideoById, updateVideo, deleteVideo, togglePublishStatus };
+// controller to increment video views
+const incrementVideoView = asyncHandler(async (req, res) => {
+  const { videoId } = req.params;
+
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Invalid VideoId!!!");
+  }
+
+  const video = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      $inc: {
+        views: 1,
+      },
+    },
+    { new: true }
+  );
+
+  if (!video) {
+    throw new ApiError(404, "Video not found!!!");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { views: video.views }, "Video view incremented successfully"));
+});
+
+export { uploadVideo, getAllVideos, getVideoById, updateVideo, deleteVideo, togglePublishStatus, incrementVideoView };

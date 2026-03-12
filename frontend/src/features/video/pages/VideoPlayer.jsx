@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ThumbsUp, MessageSquare, Share2, UserPlus, Heart } from 'lucide-react';
 import axiosInstance from '../../../services/axiosInstance';
@@ -15,6 +15,7 @@ const VideoPlayer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
+  const lastViewedVideoId = useRef(null);
 
   useEffect(() => {
     const fetchVideo = async () => {
@@ -66,6 +67,25 @@ const VideoPlayer = () => {
     }
   };
 
+  // Dedicated effect for view increment with useRef guard to prevent double-counting in StrictMode
+  useEffect(() => {
+    if (videoId && lastViewedVideoId.current !== videoId) {
+      // Mark as viewed IMMEDIATELY
+      lastViewedVideoId.current = videoId;
+      
+      const incrementView = async () => {
+        try {
+          await axiosInstance.patch(`/videos/v/${videoId}/view`);
+        } catch (error) {
+          console.error('Error incrementing view:', error);
+          // Optional: reset if you want to allow retry on error
+          // lastViewedVideoId.current = null;
+        }
+      };
+      incrementView();
+    }
+  }, [videoId]);
+
   if (isLoading) return <div className="flex justify-center py-20"><Loader size="lg" /></div>;
   if (!video) return <div className="text-center py-20">Video not found</div>;
 
@@ -77,6 +97,7 @@ const VideoPlayer = () => {
           <video 
             src={video.videoFile} 
             controls 
+            autoPlay
             className="w-full h-full"
             poster={video.thumbnail}
           />
