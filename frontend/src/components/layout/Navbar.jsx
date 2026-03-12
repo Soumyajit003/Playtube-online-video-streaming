@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, Bell, User, LogOut, Video } from 'lucide-react';
 import useAuthStore from '../../app/store';
 import { Button } from '../ui/Button';
+import { assets } from '../../assets/assets';
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,8 +21,9 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-white/10 px-4 h-16 flex items-center justify-between">
       <div className="flex items-center gap-2">
         <Link to="/" className="flex items-center gap-2">
-          <div className="bg-primary p-1.5 rounded-lg">
-            <Video className="text-white h-5 w-5" />
+          <div className="pl-1.5 rounded-lg">
+            {/* <Video className="text-white h-5 w-5" /> */}
+            <img className='w-8' src={assets.logo} alt="logo" />
           </div>
           <span className="font-bold text-xl tracking-tight hidden sm:block">PLAYTUBE</span>
         </Link>
