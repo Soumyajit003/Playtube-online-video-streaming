@@ -51,6 +51,7 @@ const uploadVideo = asyncHandler(async (req, res) => {
     videoPublicId: videoUploaded.public_id,
     thumbnail: thumbnailUploaded.url,
     thumbnailPublicId: thumbnailUploaded.public_id,
+    duration: videoUploaded.duration,
     owner,
     isPublished: true,
   });
