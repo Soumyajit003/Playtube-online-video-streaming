@@ -8,7 +8,10 @@ const connectDB = async() => {
         
     } catch (error) {
         console.error("MongoDB connection FAILLED :", error);
-        process.exit(1);
+        // Do not use process.exit(1) on Vercel as it crashes the serverless function
+        if (process.env.NODE_ENV !== 'production') {
+            process.exit(1);
+        }
     }
 }
 

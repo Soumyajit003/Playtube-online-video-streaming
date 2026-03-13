@@ -6,7 +6,7 @@ const app = express();
 
 // Middlewares
 console.log("CORS_ORIGIN:", process.env.CORS_ORIGIN);
-const origins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : "*";
+const origins = process.env.NODE_ENV === 'production' ? "*" : (process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : "*");
 
 app.use(
   cors({
@@ -31,6 +31,7 @@ import healthcheckRouter from "./routes/healthcheck.route.js";
 import playlistRouter from "./routes/playlist.route.js"
 
 // Routes declaration
+// Root route
 app.get("/", (req, res) => {
     res.json({
         message: "API is working fine!",
@@ -38,15 +39,35 @@ app.get("/", (req, res) => {
     });
 });
 
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/videos", videoRouter);
-app.use("/api/v1/subscriptions", subscriptionRouter);
-app.use("/api/v1/dashboard", dashboardRouter);
-app.use("/api/v1/likes", likeRouter);
-app.use("/api/v1/comments", commentRouter);
-app.use("/api/v1/tweets", tweetRouter);
-app.use("/api/v1/healthcheck", healthcheckRouter);
-app.use("/api/v1/playlists", playlistRouter);
+// Favicon handler
+app.get("/favicon.ico", (req, res) => res.status(204).end());
+app.get("/favicon.png", (req, res) => res.status(204).end());
+
+// Define routes with and without prefix for flexibility
+const routes = [
+    { path: "/users", router: userRouter },
+    { path: "/videos", router: videoRouter },
+    { path: "/subscriptions", router: subscriptionRouter },
+    { path: "/dashboard", router: dashboardRouter },
+    { path: "/likes", router: likeRouter },
+    { path: "/comments", router: commentRouter },
+    { path: "/tweets", router: tweetRouter },
+    { path: "/healthcheck", router: healthcheckRouter },
+    { path: "/playlists", router: playlistRouter },
+];
+
+routes.forEach(route => {
+    app.use(`/api/v1${route.path}`, route.router); // standard prefix
+    app.use(route.path, route.router);            // prefix-less (for direct visits)
+});
+
+// Custom 404 handler (JSON)
+app.use((req, res, next) => {
+    res.status(404).json({
+        success: false,
+        message: `Route ${req.originalUrl} not found. Try adding /api/v1/ prefix if you are calling an API.`,
+    });
+});
 
 // Common error handler
 app.use((err, req, res, next) => {
