@@ -1,7 +1,7 @@
 // ================================= Approach: 2 (Best for Production) ================================\
 // require('dotenv').config({path:'./env'});
 
-import { app } from "./app.js";
+import app from "./app.js";
 import connectDB from "./db/db.js";
 import dotenv from "dotenv";
 
@@ -93,3 +93,5 @@ const app = express();
     }
 })()
 */
+
+export default app;
