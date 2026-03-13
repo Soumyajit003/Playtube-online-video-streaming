@@ -31,6 +31,13 @@ import healthcheckRouter from "./routes/healthcheck.route.js";
 import playlistRouter from "./routes/playlist.route.js"
 
 // Routes declaration
+app.get("/", (req, res) => {
+    res.json({
+        message: "API is working fine!",
+        api_documentation: "Check the GitHub repo for API endpoints"
+    });
+});
+
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/videos", videoRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
