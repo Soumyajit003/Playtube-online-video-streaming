@@ -145,23 +145,31 @@ const getAllVideos = asyncHandler(async (req, res) => {
       },
     },
     {
-      $unwind: "$ownerDetails",
+      $unwind: {
+        path: "$ownerDetails",
+        preserveNullAndEmptyArrays: true
+      },
     }
   );
 
-  const videoAggregate = Video.aggregate(pipeline);
+  try {
+    const videoAggregate = Video.aggregate(pipeline);
 
-  // now its time to do pagination for fast response
-  const options = {
-    page: parseInt(page, 10),
-    limit: parseInt(limit, 10),
-  };
+    // now its time to do pagination for fast response
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+    };
 
-  const video = await Video.aggregatePaginate(videoAggregate, options);
+    const video = await Video.aggregatePaginate(videoAggregate, options);
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, video, "Videos fetched successfully"));
+    return res
+      .status(200)
+      .json(new ApiResponse(200, video, "Videos fetched successfully"));
+  } catch (error) {
+    console.error("Error in getAllVideos aggregation:", error);
+    throw new ApiError(500, error?.message || "Internal server error while fetching videos");
+  }
 });
 
 // controller to get video by Id
