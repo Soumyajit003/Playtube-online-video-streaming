@@ -27,6 +27,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
+// Diagnostic middleware for production
+import mongoose from "mongoose";
+app.use((req, res, next) => {
+    if (process.env.NODE_ENV === 'production') {
+        console.log(`[REQ] ${req.method} ${req.url} | DB State: ${mongoose.connection.readyState}`);
+    }
+    next();
+});
+
 // Routers import
 import userRouter from "./routes/user.route.js";
 import videoRouter from "./routes/video.route.js";

@@ -3,12 +3,17 @@ import { DB_NAME } from "../constants.js";
 
 const connectDB = async() => {
     try {
-        if (!process.env.MONGODB_URI) {
+        const uri = process.env.MONGODB_URI;
+        if (!uri) {
             console.error("CRITICAL: MONGODB_URI is not defined in environment variables!");
             return;
         }
+
+        // Ensure the URI has the correct format and includes the DB name
+        const connectionString = uri.endsWith("/") ? `${uri}${DB_NAME}` : `${uri}/${DB_NAME}`;
         
-        const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`);
+        console.log(`\n Attempting to connect to MongoDB...`);
+        const connectionInstance = await mongoose.connect(connectionString);
         console.log(`\n MongoDB connected!!! DB host: ${connectionInstance.connection.host}`);
         
     } catch (error) {
