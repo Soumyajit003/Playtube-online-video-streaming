@@ -10,6 +10,7 @@ import { GlassCard } from '../../../components/ui/GlassCard';
 const VideoUpload = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [videoFile, setVideoFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
   const navigate = useNavigate();
@@ -25,8 +26,12 @@ const VideoUpload = () => {
     formData.append('thumbnail', thumbnail);
 
     try {
-      await axiosInstance.post('/videos', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      await axiosInstance.post('/videos/upload-video', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(progress);
+        }
       });
       navigate('/dashboard');
     } catch (error) {
@@ -121,8 +126,32 @@ const VideoUpload = () => {
             {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
           </div>
 
+          {isUploading && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-text-secondary">
+                  {uploadProgress < 100 ? 'Uploading...' : 'Processing on server...'}
+                </span>
+                <span className="text-primary font-medium">{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-300 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)] ${
+                    uploadProgress === 100 ? 'bg-green-500 animate-pulse' : 'bg-primary'
+                  }`}
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              {uploadProgress === 100 && (
+                <p className="text-xs text-text-secondary animate-pulse">
+                  This might take a moment while we process your video...
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="pt-4 flex gap-4">
-            <Button variant="ghost" className="flex-1" type="button" onClick={() => navigate(-1)}>
+            <Button variant="ghost" className="flex-1" type="button" onClick={() => navigate(-1)} disabled={isUploading}>
               Cancel
             </Button>
             <Button 
@@ -130,7 +159,7 @@ const VideoUpload = () => {
               className="flex-1" 
               type="submit" 
               isLoading={isUploading}
-              disabled={!videoFile || !thumbnail}
+              disabled={!videoFile || !thumbnail || isUploading}
             >
               Publish Video
             </Button>

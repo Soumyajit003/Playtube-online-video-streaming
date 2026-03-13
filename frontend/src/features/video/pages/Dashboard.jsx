@@ -4,6 +4,7 @@ import axiosInstance from '../../../services/axiosInstance';
 import { GlassCard } from '../../../components/ui/GlassCard';
 import { Loader } from '../../../components/ui/Loader';
 import { Button } from '../../../components/ui/Button';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -45,10 +46,12 @@ const Dashboard = () => {
           <h1 className="text-3xl font-bold tracking-tight">Channel Dashboard</h1>
           <p className="text-text-secondary mt-1">Manage your content and track performance</p>
         </div>
-        <Button variant="primary" size="md" className="gap-2">
-          <Video size={18} />
-          Upload New Video
-        </Button>
+        <Link to="/upload">
+          <Button variant="primary" size="md" className="gap-2">
+            <Video size={18} />
+            Upload New Video
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
