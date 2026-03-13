@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -104,7 +105,7 @@ const Dashboard = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-text-secondary">
-                    {new Date(video.createdAt).toLocaleDateString()}
+                    {video.createdAt ? new Date(video.createdAt).toLocaleDateString() : 'N/A'}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1.5 text-xs text-text-secondary">
@@ -113,7 +114,14 @@ const Dashboard = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    <Button variant="ghost" size="sm" className="text-primary hover:text-white">Edit</Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-primary hover:text-white"
+                      onClick={() => navigate(`/edit-video/${video._id}`)}
+                    >
+                      Edit
+                    </Button>
                   </td>
                 </tr>
               ))}

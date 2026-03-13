@@ -315,17 +315,15 @@ const updateVideo = asyncHandler(async (req, res) => {
   }
 
   // delete and update the thumbnail
+  let thumbnail;
   const thumbnailToDelete = video.thumbnailPublicId;
-
   const thumbnailLocalPath = req.file?.path;
-  if (!thumbnailLocalPath) {
-    throw new ApiError(400, "Thumbnail is required!!!");
-  }
 
-  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
-
-  if (!thumbnail) {
-    throw new ApiError(500, "Error while updating thumbnail on Cloudinary!!!");
+  if (thumbnailLocalPath) {
+    thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+    if (!thumbnail) {
+      throw new ApiError(500, "Error while updating thumbnail on Cloudinary!!!");
+    }
   }
 
   const updatedVideo = await Video.findByIdAndUpdate(
@@ -334,18 +332,22 @@ const updateVideo = asyncHandler(async (req, res) => {
       $set: {
         title,
         description,
-        thumbnail: thumbnail.url,
-        thumbnailPublicId: thumbnail.public_id,
+        ...(thumbnail && {
+          thumbnail: thumbnail.url,
+          thumbnailPublicId: thumbnail.public_id,
+        }),
       },
     },
     { new: true }
   );
 
-  if (!updateVideo) {
+  if (!updatedVideo) {
     throw new ApiError(400, "Failed to update video, try again!!!");
   }
 
-  await deleteFromCloudinary(thumbnailToDelete);
+  if (thumbnailLocalPath && thumbnail) {
+    await deleteFromCloudinary(thumbnailToDelete);
+  }
 
   return res
     .status(200)

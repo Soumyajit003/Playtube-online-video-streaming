@@ -9,6 +9,7 @@ import VideoPlayer from '../features/video/pages/VideoPlayer';
 import Dashboard from '../features/video/pages/Dashboard';
 import Tweets from '../features/tweet/pages/Tweets';
 import Upload from '../features/video/pages/VideoUpload';
+import EditVideo from '../features/video/pages/EditVideo';
 import Channel from '../features/video/pages/ChannelPage';
 import Playlists from '../features/playlist/components/PlaylistList';
 const Subscriptions = () => <div className="p-10 text-center text-text-secondary">Subscriptions section coming soon...</div>;
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
       {
         path: 'upload',
         element: <ProtectedRoute><Upload /></ProtectedRoute>,
+      },
+      {
+        path: 'edit-video/:videoId',
+        element: <ProtectedRoute><EditVideo /></ProtectedRoute>,
       },
       {
         path: 'tweets',
