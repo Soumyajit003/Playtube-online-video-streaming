@@ -2,10 +2,12 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import { Toaster } from 'react-hot-toast';
 
 const MainLayout = () => {
   return (
     <div className="min-h-screen bg-background text-white">
+      <Toaster position="top-right" />
       <Navbar />
       <div className="flex pt-16">
         <Sidebar />

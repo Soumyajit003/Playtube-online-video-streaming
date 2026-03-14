@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { LayoutDashboard, Video, Eye, Users, Heart, CheckCircle, Clock } from 'lucide-react';
 import axiosInstance from '../../../services/axiosInstance';
 import { GlassCard } from '../../../components/ui/GlassCard';
@@ -10,26 +10,60 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchInitialData = async () => {
       setIsLoading(true);
       try {
         const [statsRes, videosRes] = await Promise.all([
           axiosInstance.get('/dashboard/stats'),
-          axiosInstance.get('/dashboard/videos')
+          axiosInstance.get('/dashboard/videos?page=1&limit=10')
         ]);
         setStats(statsRes.data.data);
-        setVideos(videosRes.data.data);
+        setVideos(videosRes.data.data.docs || []);
+        setHasNextPage(videosRes.data.data.hasNextPage);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchDashboardData();
+    fetchInitialData();
   }, []);
+
+  const fetchMoreVideos = async () => {
+    if (!hasNextPage || isFetchingMore) return;
+    setIsFetchingMore(true);
+    try {
+      const nextPage = page + 1;
+      const res = await axiosInstance.get(`/dashboard/videos?page=${nextPage}&limit=10`);
+      setVideos((prev) => [...prev, ...(res.data.data.docs || [])]);
+      setHasNextPage(res.data.data.hasNextPage);
+      setPage(nextPage);
+    } catch (error) {
+      console.error('Error fetching more videos:', error);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  };
+
+  const observer = useRef();
+  const lastVideoElementRef = useCallback(node => {
+    if (isLoading || isFetchingMore) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasNextPage) {
+        fetchMoreVideos();
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [isLoading, isFetchingMore, hasNextPage, page]);
 
   if (isLoading) return <div className="flex justify-center py-20"><Loader size="lg" /></div>;
 
@@ -83,8 +117,12 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {videos.map((video) => (
-                <tr key={video._id} className="hover:bg-white/5 transition-colors group">
+              {videos.map((video, index) => (
+                <tr 
+                  ref={videos.length === index + 1 ? lastVideoElementRef : null}
+                  key={video._id} 
+                  className="hover:bg-white/5 transition-colors group"
+                >
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                       video.isPublished 
@@ -127,6 +165,11 @@ const Dashboard = () => {
               ))}
             </tbody>
           </table>
+          {isFetchingMore && (
+            <div className="flex justify-center p-4">
+              <Loader size="sm" />
+            </div>
+          )}
         </div>
       </div>
     </div>

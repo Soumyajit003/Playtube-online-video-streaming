@@ -21,7 +21,7 @@ const Sidebar = () => {
     { icon: Home, label: 'Home', path: '/' },
     { icon: Heart, label: 'Liked Videos', path: '/liked-videos' },
     { icon: History, label: 'History', path: '/history' },
-    { icon: PlaySquare, label: 'My Content', path: '/my-content' },
+    { icon: PlaySquare, label: 'My Channel', path: user ? `/channel/${user.username}` : '/login' },
     { icon: Layers, label: 'Playlists', path: '/playlists' },
     { icon: Users, label: 'Subscriptions', path: '/subscriptions' },
     { icon: Hash, label: 'Tweets', path: '/tweets' },

@@ -33,6 +33,7 @@ const Signup = () => {
   };
 
   const onSubmit = async (data) => {
+    
     const formData = new FormData();
     formData.append('fullname', data.fullname);
     formData.append('username', data.username);

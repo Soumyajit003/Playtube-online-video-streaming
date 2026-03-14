@@ -4,34 +4,43 @@ import axiosInstance from '../../../services/axiosInstance';
 import { Loader } from '../../../components/ui/Loader';
 import { Button } from '../../../components/ui/Button';
 import VideoCard from '../../../components/ui/VideoCard';
+import useAuthStore from '../../../app/store';
+import EditProfileModal from '../../user/components/EditProfileModal';
 
 const ChannelPage = () => {
   const { username } = useParams();
+  const { user } = useAuthStore();
   const [channel, setChannel] = useState(null);
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const fetchChannelData = async () => {
+    setIsLoading(true);
+    try {
+      const channelRes = await axiosInstance.get(`/users/channel/${username}`);
+      const channelData = channelRes.data.data;
+      setChannel(channelData);
+      
+      if (channelData?._id) {
+        const videosRes = await axiosInstance.get(`/videos`, { params: { userId: channelData._id } });
+        setVideos(videosRes.data.data.docs || []);
+      }
+    } catch (error) {
+      console.error('Error fetching channel data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchChannelData = async () => {
-      setIsLoading(true);
-      try {
-        const [channelRes, videosRes] = await Promise.all([
-          axiosInstance.get(`/users/c/${username}`),
-          axiosInstance.get(`/videos`, { params: { userId: username } }) // Adjust if backend uses ID or username
-        ]);
-        setChannel(channelRes.data.data);
-        setVideos(videosRes.data.data.docs || []);
-      } catch (error) {
-        console.error('Error fetching channel data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchChannelData();
   }, [username]);
 
   if (isLoading) return <div className="flex justify-center py-20"><Loader size="lg" /></div>;
   if (!channel) return <div className="text-center py-20">Channel not found</div>;
+
+  const isOwner = user?.username === channel.username;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -56,11 +65,25 @@ const ChannelPage = () => {
           <p className="text-text-secondary">@{channel.username} • {channel.subscribersCount} subscribers</p>
         </div>
         <div className="pb-4">
-          <Button variant={channel.isSubscribed ? 'secondary' : 'primary'} className="rounded-full px-8">
-            {channel.isSubscribed ? 'Subscribed' : 'Subscribe'}
-          </Button>
+          {isOwner ? (
+            <Button onClick={() => setIsEditOpen(true)} variant="secondary" className="rounded-full px-8">
+              Edit
+            </Button>
+          ) : (
+            <Button variant={channel.isSubscribed ? 'secondary' : 'primary'} className="rounded-full px-8">
+              {channel.isSubscribed ? 'Subscribed' : 'Subscribe'}
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal 
+        isOpen={isEditOpen} 
+        onClose={() => setIsEditOpen(false)} 
+        channel={channel} 
+        onUpdateSuccess={fetchChannelData}
+      />
 
       {/* Tabs Placeholder */}
       <div className="border-b border-white/10 pb-4">

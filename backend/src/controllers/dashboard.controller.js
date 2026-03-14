@@ -81,8 +81,9 @@ const getChannelStats = asyncHandler(async (req, res) => {
 // controller for getting all the videos uploaded by user
 const getChannelVideos = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
+  const { page = 1, limit = 10 } = req.query;
 
-  const videos = await Video.aggregate([
+  const pipeline = [
     {
       $match: {
         owner: new mongoose.Types.ObjectId(userId),
@@ -121,7 +122,16 @@ const getChannelVideos = asyncHandler(async (req, res) => {
         likesCount: 1,
       },
     },
-  ]);
+  ];
+
+  const videoAggregate = Video.aggregate(pipeline);
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
+
+  const videos = await Video.aggregatePaginate(videoAggregate, options);
 
   return res
     .status(200)

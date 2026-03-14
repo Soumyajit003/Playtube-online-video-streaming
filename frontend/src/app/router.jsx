@@ -73,10 +73,6 @@ const router = createBrowserRouter([
       {
         path: 'playlists',
         element: <Playlists />,
-      },
-      {
-        path: 'my-content',
-        element: <ProtectedRoute><div>My Content</div></ProtectedRoute>,
       }
     ],
   },

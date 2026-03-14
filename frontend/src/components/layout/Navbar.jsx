@@ -52,11 +52,13 @@ const Navbar = () => {
               </Button>
             </Link>
             <div className="flex items-center gap-2">
-              <img 
-                src={user.avatar} 
-                alt={user.username} 
-                className="h-8 w-8 rounded-full border border-primary/50 object-cover cursor-pointer hover:opacity-80 transition-opacity"
-              />
+              <Link to={`/channel/${user.username}`}>
+                <img
+                  src={user.avatar} 
+                  alt={user.username} 
+                  className="h-8 w-8 rounded-full border border-primary/50 object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                />
+              </Link>
             </div>
           </>
         ) : (
