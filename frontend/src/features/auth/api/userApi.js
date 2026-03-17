@@ -6,7 +6,7 @@ import axiosInstance from "../../../services/axiosInstance";
  */
 export const getWatchHistory = async () => {
     try {
-        const response = await axiosInstance.get("/users/watch-history");
+        const response = await axiosInstance.get("users/watch-history");
         return response.data;
     } catch (error) {
         throw error?.response?.data || error;

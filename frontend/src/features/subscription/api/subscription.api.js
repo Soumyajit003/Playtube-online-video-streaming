@@ -2,7 +2,7 @@ import axiosInstance from "../../../services/axiosInstance";
 
 export const toggleSubscription = async (channelId) => {
   try {
-    const response = await axiosInstance.post(`/subscriptions/channel/${channelId}`);
+    const response = await axiosInstance.post(`subscriptions/channel/${channelId}`);
     return response.data;
   } catch (error) {
     console.error("Error toggling subscription:", error);
@@ -12,7 +12,7 @@ export const toggleSubscription = async (channelId) => {
 
 export const getSubscribedChannels = async (subscriberId) => {
   try {
-    const response = await axiosInstance.get(`/subscriptions/user/${subscriberId}`);
+    const response = await axiosInstance.get(`subscriptions/user/${subscriberId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching subscribed channels:", error);
@@ -22,7 +22,7 @@ export const getSubscribedChannels = async (subscriberId) => {
 
 export const getChannelSubscribers = async (channelId) => {
   try {
-    const response = await axiosInstance.get(`/subscriptions/channel/${channelId}`);
+    const response = await axiosInstance.get(`subscriptions/channel/${channelId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching channel subscribers:", error);

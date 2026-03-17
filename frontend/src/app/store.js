@@ -10,7 +10,7 @@ const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.post('/users/login', { email, password });
+      const response = await axiosInstance.post('users/login', { email, password });
       const { user, accessToken } = response.data.data;
       localStorage.setItem('accessToken', accessToken);
       set({ user, isAuthenticated: true, isLoading: false });
@@ -28,7 +28,7 @@ const useAuthStore = create((set) => ({
   register: async (formData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.post('/users/register', formData, {
+      const response = await axiosInstance.post('users/register', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       set({ isLoading: false });
@@ -46,7 +46,7 @@ const useAuthStore = create((set) => ({
 
   logout: async () => {
     try {
-      await axiosInstance.post('/users/logout');
+      await axiosInstance.post('users/logout');
     } finally {
       localStorage.removeItem('accessToken');
       set({ user: null, isAuthenticated: false });
@@ -56,7 +56,7 @@ const useAuthStore = create((set) => ({
   checkAuth: async () => {
     set({ isLoading: true });
     try {
-      const response = await axiosInstance.get('/users/current-user');
+      const response = await axiosInstance.get('users/current-user');
       set({ user: response.data.data, isAuthenticated: true, isLoading: false });
     } catch (error) {
       set({ user: null, isAuthenticated: false, isLoading: false });

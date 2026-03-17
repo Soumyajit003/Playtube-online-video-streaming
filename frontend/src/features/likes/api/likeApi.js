@@ -7,7 +7,7 @@ import axiosInstance from "../../../services/axiosInstance";
  */
 export const toggleVideoLike = async (videoId) => {
     try {
-        const response = await axiosInstance.post(`/likes/toggle/video/${videoId}`);
+        const response = await axiosInstance.post(`likes/toggle/video/${videoId}`);
         return response.data;
     } catch (error) {
         throw error?.response?.data || error;
@@ -20,7 +20,7 @@ export const toggleVideoLike = async (videoId) => {
  */
 export const getLikedVideos = async () => {
     try {
-        const response = await axiosInstance.get("/likes/getlikedvideos");
+        const response = await axiosInstance.get("likes/getlikedvideos");
         return response.data;
     } catch (error) {
         throw error?.response?.data || error;
