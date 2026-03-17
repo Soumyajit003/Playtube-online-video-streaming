@@ -7,6 +7,7 @@ import { Loader } from '../../../components/ui/Loader';
 import { GlassCard } from '../../../components/ui/GlassCard';
 import useAuthStore from '../../../app/store';
 import { toggleVideoLike } from '../../likes/api/likeApi';
+import { toggleSubscription } from '../../subscription/api/subscription.api';
 
 const VideoPlayer = () => {
   const { videoId } = useParams();
@@ -15,6 +16,8 @@ const VideoPlayer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriberCount, setSubscriberCount] = useState(0);
   const lastViewedVideoId = useRef(null);
 
   useEffect(() => {
@@ -26,6 +29,8 @@ const VideoPlayer = () => {
         setVideo(videoData);
         setIsLiked(videoData.isLiked);
         setLikesCount(videoData.likesCount);
+        setIsSubscribed(videoData.owner[0]?.isSubscribed || false);
+        setSubscriberCount(videoData.owner[0]?.subscriberCount || 0);
       } catch (error) {
         console.error('Error fetching video:', error);
       } finally {
@@ -64,6 +69,38 @@ const VideoPlayer = () => {
       // Rollback on error
       setIsLiked(previousIsLiked);
       setLikesCount(previousLikesCount);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    if (!currentUser) {
+      console.warn('User must be logged in to subscribe');
+      return;
+    }
+
+    const channelId = video.owner[0]?._id;
+    if (!channelId) return;
+
+    // Prevent subscribing to self
+    if (currentUser._id === channelId) {
+      console.warn('Cannot subscribe to your own channel');
+      return;
+    }
+
+    // Optimistic UI update
+    const previousIsSubscribed = isSubscribed;
+    const previousSubscriberCount = subscriberCount;
+
+    setIsSubscribed(!previousIsSubscribed);
+    setSubscriberCount(prev => previousIsSubscribed ? prev - 1 : prev + 1);
+
+    try {
+      await toggleSubscription(channelId);
+    } catch (error) {
+      console.error('Error toggling subscription:', error);
+      // Rollback
+      setIsSubscribed(previousIsSubscribed);
+      setSubscriberCount(previousSubscriberCount);
     }
   };
 
@@ -116,11 +153,18 @@ const VideoPlayer = () => {
                 <Link to={`/channel/${video.owner[0]?.username}`}>
                   <h3 className="font-semibold">{video.owner[0]?.username}</h3>
                 </Link>
-                <p className="text-sm text-text-secondary">{video.owner[0]?.subscriberCount} subscribers</p>
+                <p className="text-sm text-text-secondary">{subscriberCount} subscribers</p>
               </div>
-              <Button variant="primary" size="sm" className="ml-4 rounded-full px-6">
-                Subscribe
-              </Button>
+              {currentUser?._id !== video.owner[0]?._id && (
+                <Button 
+                  variant={isSubscribed ? "secondary" : "primary"} 
+                  size="sm" 
+                  className="ml-4 rounded-full px-6 transition-all duration-300"
+                  onClick={handleSubscribe}
+                >
+                  {isSubscribed ? "Subscribed" : "Subscribe"}
+                </Button>
+              )}
             </div>
 
             <div className="flex items-center gap-2">

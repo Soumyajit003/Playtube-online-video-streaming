@@ -5,6 +5,7 @@ import { Loader } from '../../../components/ui/Loader';
 import { Button } from '../../../components/ui/Button';
 import VideoCard from '../../../components/ui/VideoCard';
 import useAuthStore from '../../../app/store';
+import { toggleSubscription } from '../../subscription/api/subscription.api';
 import EditProfileModal from '../../user/components/EditProfileModal';
 
 const ChannelPage = () => {
@@ -14,6 +15,8 @@ const ChannelPage = () => {
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriberCount, setSubscriberCount] = useState(0);
 
   const fetchChannelData = async () => {
     setIsLoading(true);
@@ -21,6 +24,8 @@ const ChannelPage = () => {
       const channelRes = await axiosInstance.get(`/users/channel/${username}`);
       const channelData = channelRes.data.data;
       setChannel(channelData);
+      setIsSubscribed(channelData.isSubscribed);
+      setSubscriberCount(channelData.subscribersCount);
       
       if (channelData?._id) {
         const videosRes = await axiosInstance.get(`/videos`, { params: { userId: channelData._id } });
@@ -30,6 +35,34 @@ const ChannelPage = () => {
       console.error('Error fetching channel data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    if (!user) {
+      console.warn('User must be logged in to subscribe');
+      return;
+    }
+
+    if (user._id === channel._id) {
+      console.warn('Cannot subscribe to your own channel');
+      return;
+    }
+
+    // Optimistic UI update
+    const previousIsSubscribed = isSubscribed;
+    const previousSubscriberCount = subscriberCount;
+
+    setIsSubscribed(!previousIsSubscribed);
+    setSubscriberCount(prev => previousIsSubscribed ? prev - 1 : prev + 1);
+
+    try {
+      await toggleSubscription(channel._id);
+    } catch (error) {
+      console.error('Error toggling subscription:', error);
+      // Rollback
+      setIsSubscribed(previousIsSubscribed);
+      setSubscriberCount(previousSubscriberCount);
     }
   };
 
@@ -62,7 +95,7 @@ const ChannelPage = () => {
         />
         <div className="flex-1 pb-4">
           <h1 className="text-3xl font-bold">{channel.fullname}</h1>
-          <p className="text-text-secondary">@{channel.username} • {channel.subscribersCount} subscribers</p>
+          <p className="text-text-secondary">@{channel.username} • {subscriberCount} subscribers</p>
         </div>
         <div className="pb-4">
           {isOwner ? (
@@ -70,8 +103,12 @@ const ChannelPage = () => {
               Edit
             </Button>
           ) : (
-            <Button variant={channel.isSubscribed ? 'secondary' : 'primary'} className="rounded-full px-8">
-              {channel.isSubscribed ? 'Subscribed' : 'Subscribe'}
+            <Button 
+              variant={isSubscribed ? 'secondary' : 'primary'} 
+              className="rounded-full px-8 transition-all duration-300"
+              onClick={handleSubscribe}
+            >
+              {isSubscribed ? 'Subscribed' : 'Subscribe'}
             </Button>
           )}
         </div>

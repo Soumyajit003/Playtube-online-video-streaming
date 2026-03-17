@@ -12,7 +12,7 @@ import Upload from '../features/video/pages/VideoUpload';
 import EditVideo from '../features/video/pages/EditVideo';
 import Channel from '../features/video/pages/ChannelPage';
 import Playlists from '../features/playlist/components/PlaylistList';
-const Subscriptions = () => <div className="p-10 text-center text-text-secondary">Subscriptions section coming soon...</div>;
+import Subscriptions from '../features/subscription/pages/Subscriptions';
 import LikedVideos from '../features/video/pages/LikedVideos';
 import History from '../features/video/pages/History';
 
