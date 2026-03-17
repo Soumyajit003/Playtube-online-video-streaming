@@ -12,7 +12,7 @@ import mongoose from "mongoose";
 // Options for cookies
 const options = {
   httpOnly: true,
-  secure: true,
+  secure: process.env.NODE_ENV === 'production',
 };
 
 // This is a general function to generate Access token and Refresh Token
@@ -142,7 +142,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   // finding user if exist
   const user = await User.findOne({
-    $or: [{ email }],
+    $or: [{ email }, { username: email }],
   });
 
   if (!user) {
