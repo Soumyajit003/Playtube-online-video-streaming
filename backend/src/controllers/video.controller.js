@@ -180,9 +180,8 @@ const getVideoById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Videos id is invalid!!!");
   }
 
-  if (!isValidObjectId(req.user?._id)) {
-    throw new ApiError(400, "User id is invalid!!!");
-  }
+  // if it's not public, we might want to check for user
+  // but let's make it public by removing the 400 error for missing user
 
   console.log("Fetching video by ID:", videoId);
   console.log("Current User ID:", req.user?._id);
@@ -209,7 +208,10 @@ const getVideoById = asyncHandler(async (req, res) => {
         isLiked: {
           $cond: {
             if: {
-              $in: [new mongoose.Types.ObjectId(req.user?._id), "$likes.likedBy"],
+              $and: [
+                { $ne: [req.user?._id, undefined] },
+                { $in: [new mongoose.Types.ObjectId(req.user?._id), "$likes.likedBy"] }
+              ]
             },
             then: true,
             else: false,
@@ -240,7 +242,10 @@ const getVideoById = asyncHandler(async (req, res) => {
               isSubscribed: {
                 $cond: {
                   if: {
-                    $in: [new mongoose.Types.ObjectId(req.user?._id), "$subscribers.subscriber"],
+                    $and: [
+                      { $ne: [req.user?._id, undefined] },
+                      { $in: [new mongoose.Types.ObjectId(req.user?._id), "$subscribers.subscriber"] }
+                    ]
                   },
                   then: true,
                   else: false,
@@ -283,12 +288,14 @@ const getVideoById = asyncHandler(async (req, res) => {
   // increase the views if the video is fetched successfully
   // MOVED to dedicated endpoint /v/:videoId/view
 
-  // add the video to the watch history of the user
-  await User.findByIdAndUpdate(req.user?._id, {
-    $addToSet: {
-      watchHistory: videoId,
-    },
-  });
+  // add the video to the watch history of the user if logged in
+  if (req.user?._id) {
+    await User.findByIdAndUpdate(req.user?._id, {
+      $addToSet: {
+        watchHistory: videoId,
+      },
+    });
+  }
 
   return res
     .status(200)

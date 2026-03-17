@@ -44,9 +44,9 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        // If refresh fails, redirect to login or clear auth state
+        // If refresh fails, clear auth state and redirect to login if necessary
         localStorage.removeItem('accessToken');
-        // window.location.href = '/login';
+        // Optional: window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }

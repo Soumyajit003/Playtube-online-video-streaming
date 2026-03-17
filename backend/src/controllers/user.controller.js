@@ -162,7 +162,7 @@ const loginUser = asyncHandler(async (req, res) => {
   );
 
   const loggedInUser = await User.findById(user._id).select(
-    "-password -refrestToken"
+    "-password -refreshToken"
   ); //fetching the same user from the db
 
   // send in cookie
@@ -228,17 +228,17 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 
     // ***There might be an error for "newRefreshToken", we might need to change this name to "refreshToken"
-    const { accessToken, newRefreshToken } =
+    const { accessToken, refreshToken } =
       await generateAccessAndRefreshToken(user._id);
 
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
+      .cookie("refreshToken", refreshToken, options)
       .json(
         new ApiResponse(
           200,
-          { accessToken, refreshToken: newRefreshToken },
+          { accessToken, refreshToken },
           "Access token refreshed..."
         )
       );
