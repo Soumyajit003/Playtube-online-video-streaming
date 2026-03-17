@@ -5,23 +5,43 @@ import cookieParser from "cookie-parser";
 const app = express();
 
 // Middlewares
-const origins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : [];
+// const origins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : [];
+
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       // allow requests with no origin (like mobile apps or curl requests)
+//       if (!origin) return callback(null, true);
+      
+//       if (origins.indexOf(origin) !== -1 || origins.includes("*") || process.env.NODE_ENV === 'production') {
+//         callback(null, true);
+//       } else {
+//         callback(new Error('Not allowed by CORS'));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
+
+const origins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",")
+  : [];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
-      if (origins.indexOf(origin) !== -1 || origins.includes("*") || process.env.NODE_ENV === 'production') {
+
+      if (origins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
